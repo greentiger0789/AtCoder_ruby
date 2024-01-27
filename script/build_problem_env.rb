@@ -67,7 +67,7 @@ def generate_spec_file(problem_name, parsed_data)
     file.puts "require \"rspec\""
     file.puts "require \"tempfile\""
     file.puts
-    file.puts "def run_problem(problem_name, input_data)"
+    file.puts "def run_problem(input_data)"
     file.puts "  Tempfile.create(\"input_data\") do |tmp|"
     file.puts "    tmp.write(input_data)"
     file.puts "    tmp.rewind"
@@ -87,14 +87,13 @@ def generate_spec_file(problem_name, parsed_data)
     file.puts
     file.puts "RSpec.describe \"#{problem_name}\" do"
     file.puts "  num_cases = #{num_cases}"
-    file.puts "  problem_name = \"#{problem_name}\""
     file.puts
     file.puts "  num_cases.times do |i|"
     file.puts "    it \"test case \#{i + 1}\" do"
     file.puts "      input_data = read_file(\"tests/#{problem_name}/sample-\#{i + 1}.in\")"
     file.puts "      expected_output = read_file(\"tests/#{problem_name}/sample-\#{i + 1}.out\").strip"
     file.puts
-    file.puts "      actual_output = run_problem(problem_name, input_data)"
+    file.puts "      actual_output = run_problem(input_data)"
     file.puts "      expect(actual_output).to eq(expected_output)"
     file.puts "    end"
     file.puts "  end"
