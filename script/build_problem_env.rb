@@ -6,8 +6,6 @@ require_relative "./scraping"
 
 # メイン関数。引数としてパラメータを受け取り、ファイルの存在を確認する関数を呼び出す
 def main(params)
-  # デバッグ用に問題名を表示
-  puts params[:problem_name]
   problem_name = params[:problem_name]
   # ファイルの存在を確認する関数を呼び出す
   ensure_files_exist(problem_name)
@@ -30,6 +28,7 @@ def ensure_files_exist(problem_name)
   FileUtils.cp(template_path, target_path)
 end
 
+# 入力例と出力例を取得・保存
 def save_examples(problem_name)
   problem_directory_name = split_underscore(problem_name)
   url = "https://atcoder.jp/contests/#{problem_directory_name}/tasks/#{problem_name}"
@@ -48,6 +47,7 @@ def save_examples(problem_name)
   parsed_data
 end
 
+# abc150_aからabc150を取り出す
 def split_underscore(problem_name)
   match = problem_name.match(/(.+)_/)
   if match
@@ -59,6 +59,7 @@ def split_underscore(problem_name)
 end
 
 # rubocop:disable Metrics/MethodLength, Metrics/AbcSize, Metrics/BlockLength
+# specファイル作成
 def generate_spec_file(problem_name, parsed_data)
   num_cases = parsed_data[:output_examples].length
   File.open("spec/#{problem_name}_spec.rb", "w") do |file|
@@ -107,7 +108,7 @@ params = {}
 
 # コマンドライン引数のパース
 OptionParser.new do |opts|
-  opts.on("-p", "--problem_name NAME", "問題名を設定します") do |v|
+  opts.on("-p", "--problem_name NAME", "問題名を設定") do |v|
     params[:problem_name] = v
   end
 end.parse!(ARGV)
@@ -117,9 +118,6 @@ unless params[:problem_name]
   puts "エラー: problem_name を指定する必要があります。（ex. ruby script/build_problem_env.rb -p abc052_a）"
   exit(1)
 end
-
-# デバッグ用にパラメータを表示
-p params
 
 # メイン関数を呼び出す
 main(params) if __FILE__ == $PROGRAM_NAME
