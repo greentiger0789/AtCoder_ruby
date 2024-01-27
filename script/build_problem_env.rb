@@ -11,7 +11,8 @@ def main(params)
   problem_name = params[:problem_name]
   # ファイルの存在を確認する関数を呼び出す
   ensure_files_exist(problem_name)
-  save_examples(problem_name)
+  parsed_data = save_examples(problem_name)
+  generate_spec_file(problem_name, parsed_data)
 end
 
 # ファイルの存在を確認し、存在しない場合は作成する
@@ -43,6 +44,8 @@ def save_examples(problem_name)
   output_examples.each_with_index do |output, i|
     File.write("#{directory}/sample-#{i + 1}.out", output)
   end
+
+  parsed_data
 end
 
 def split_underscore(problem_name)
@@ -54,6 +57,52 @@ def split_underscore(problem_name)
     exit(1)
   end
 end
+
+# rubocop:disable Metrics/MethodLength, Metrics/AbcSize, Metrics/BlockLength
+def generate_spec_file(problem_name, parsed_data)
+  num_cases = parsed_data[:output_examples].length
+  File.open("spec/#{problem_name}_spec.rb", "w") do |file|
+    file.puts "# frozen_string_literal: true"
+    file.puts
+    file.puts "require \"rspec\""
+    file.puts "require \"tempfile\""
+    file.puts
+    file.puts "def run_problem(problem_name, input_data)"
+    file.puts "  Tempfile.create(\"input_data\") do |tmp|"
+    file.puts "    tmp.write(input_data)"
+    file.puts "    tmp.rewind"
+    file.puts "    IO.popen(\"ruby src/#{problem_name}.rb\", \"r+\") do |io|"
+    file.puts "      tmp.each_line do |line|"
+    file.puts "        io.puts(line.strip)"
+    file.puts "      end"
+    file.puts "      io.close_write"
+    file.puts "      io.read.strip"
+    file.puts "    end"
+    file.puts "  end"
+    file.puts "end"
+    file.puts
+    file.puts "def read_file(file_path)"
+    file.puts "  File.read(file_path)"
+    file.puts "end"
+    file.puts
+    file.puts "RSpec.describe \"#{problem_name}\" do"
+    file.puts "  num_cases = #{num_cases}"
+    file.puts "  problem_name = \"#{problem_name}\""
+    file.puts
+    file.puts "  num_cases.times do |i|"
+    file.puts "    it \"test case \#{i + 1}\" do"
+    file.puts "      input_data = read_file(\"tests/#{problem_name}/sample-\#{i + 1}.in\")"
+    file.puts "      expected_output = read_file(\"tests/#{problem_name}/sample-\#{i + 1}.out\").strip"
+    file.puts
+    file.puts "      actual_output = run_problem(problem_name, input_data)"
+    file.puts "      expect(actual_output).to eq(expected_output)"
+    file.puts "    end"
+    file.puts "  end"
+    file.puts "end"
+  end
+end
+
+# rubocop:enable Metrics/MethodLength, Metrics/AbcSize, Metrics/BlockLength
 
 params = {}
 
