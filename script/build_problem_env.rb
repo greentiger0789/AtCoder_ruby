@@ -96,16 +96,31 @@ class ProblemBuilder
         File.read(file_path)
       end
 
+      RSpec::Matchers.define :match_with_normalized_newlines do |expected|
+        match do |actual|
+          normalize_newlines(actual) == normalize_newlines(expected)
+        end
+
+        failure_message do |actual|
+          "expected \#{actual.inspect} to match \#{expected.inspect} with normalized newlines"
+        end
+
+        def normalize_newlines(str)
+          str.gsub(/\\r\n/, "\\n").gsub(/\\r/, "\\n")
+        end
+      end
+
+
       RSpec.describe "#{@problem_name}" do
         num_cases = #{num_cases}
 
         num_cases.times do |i|
           it "test case \#{i + 1}" do
             input_data = read_file("tests/#{@problem_name}/sample-\#{i + 1}.in")
-            expected_output = read_file("tests/#{@problem_name}/sample-\#{i + 1}.out").strip
+            expected_output = read_file("tests/#{@problem_name}/sample-\#{i + 1}.out")
 
             actual_output = run_problem(input_data)
-            expect(actual_output).to eq(expected_output)
+            expect(actual_output).to match_with_normalized_newlines(expected_output)
           end
         end
       end
