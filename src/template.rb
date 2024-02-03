@@ -1,13 +1,15 @@
 # frozen_string_literal: true
 
-include Math
+include Math # rubocop:disable Style/MixinUsage
 
 require "prime"
 require "set"
 require "tsort"
 
+# rubocop:disable Naming/MethodParameterName
+
 # メインの処理を行うメソッド
-def main
+def main # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
   puts "ここを消して処理を書いてください．"
 end
 
@@ -96,6 +98,8 @@ end
 def repl(st, en, n = 1, &block)
   st.step(en, n, &block)
 end
+
+# rubocop:enable Naming/MethodParameterName
 
 # プログラムが直接実行された場合にメインの処理を実行する
 main if __FILE__ == $PROGRAM_NAME
