@@ -8,7 +8,7 @@ require "tsort"
 
 # メインの処理を行うメソッド
 def main
-  puts "template実行"
+  puts "ここを消して処理を書いてください．"
 end
 
 # アルファベットの配列
