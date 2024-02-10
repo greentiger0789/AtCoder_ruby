@@ -3,3 +3,5 @@ src/*
 !src/template.rb
 spec/*
 outputs/*
+script/desktop.ini
+desktop.ini
